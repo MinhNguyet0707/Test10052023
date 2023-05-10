@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring Boot Thymeleaf Example</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+            padding: 10px;
+        }
+
+        th {
+            background-color: #eee;
+        }
+    </style>
+</head>
+<body>
+<h1>Product List</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Image</th>
+        <th>Name</th>
+        <th>Price</th>
+        <th>Quantity</th>
+        <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="product : ${products}">
+        <td th:text="${product.id}"></td>
+         <td>
+			 <img th:src="${product.imageUrl}" width="200"/>
+		 </td>
+        <td th:text="${product.name}">
+		</td>
+        <td th:text="${product.price}"></td>
+        <td>
+            <button onclick="increment(this)">+</button>
+            <span class="quantity" th:text="${product.quantity}">1</span>
+            <button onclick="decrement(this)">-</button>
+        </td>
+        <td>
+            <form action="/delete" method="post">
+                <input type="hidden" name="id" th:value="${product.id}" />
+                <button onclick="confirmDeleteProduct(event)" type="submit">Delete</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div>Tính Tạm: <span id="total">0.00</span></div>
+<div>Giá trị VAT (10%): <span id="vat">0.00</span></div>
+<div>Tổng giá trị sản phẩm (bao gồm VAT): <span id="total-with-vat">0.00</span></div>
+
+<script>
+    function increment(button) {
+        var quantityElement = button.parentElement.querySelector(".quantity");
+        var quantity = parseInt(quantityElement.textContent);
+        quantity += 1;
+        quantityElement.textContent = quantity;
+        updateTotal();
+    }
+
+    function decrement(   button  ) {
+        var quantityElement = button.parentElement.querySelector(".quantity");
+        var quantity = parseInt(quantityElement.textContent);
+        if (quantity > 0) {
+            quantity -= 1;
+            quantityElement.textContent = quantity;
+            updateTotal();
+        }
+    }
+
+    function updateTotal() {
+        var rows = document.querySelectorAll("table tbody tr");
+        var total = 0;
+        for (var i = 0; i < rows.length; i++) {
+            var price = parseFloat(rows[i].querySelector("td:nth-child(4)").textContent);
+            var quantity = parseInt(rows[i].querySelector(".quantity").textContent);
+            total += price * quantity;
+        }
+        document.getElementById("total").textContent = total;
+        document.getElementById("vat").textContent = total/10;
+        document.getElementById("total-with-vat").textContent = total + total/10;
+    }
+    
+    function confirmDeleteProduct() {
+  var result = confirm("Bạn có chắc chắn muốn xóa sản phẩm không?");
+  if (result) {
+    
+    alert("Đã xóa sản phẩm");
+  } else {
+	  event.preventDefault();
+  }
+}
+</script>
+</body>
+</html>
